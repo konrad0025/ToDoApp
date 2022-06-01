@@ -1,16 +1,25 @@
 package com.example.todoapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 
 public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleViewAdapter.ViewHolder>{
 
@@ -42,11 +51,21 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
         if(taskItem.getFinishDate().equals(""))
         {
             holder.doneButton.setBackgroundResource(R.drawable.ic_baseline_panorama_fish_eye_24);
+            holder.textViewTitle.setPaintFlags(holder.textViewTitle.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.textViewTitle.setTextColor(Color.parseColor("#000000"));
         }
         else
         {
             holder.doneButton.setBackgroundResource(R.drawable.ic_baseline_check_circle_24);
+            holder.textViewTitle.setPaintFlags(holder.textViewTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.textViewTitle.setTextColor(Color.parseColor("#676767"));
         }
+        if(LocalDate.parse(taskItem.getDeadLineDate()).isBefore(LocalDate.now()))
+        {
+            holder.imageViewDeadLineDate.setImageResource(R.drawable.ic_baseline_event_24_red);
+            holder.textViewDeadLineDate.setTextColor(Color.parseColor("#FF3232"));
+        }
+
     }
 
     @Override
@@ -58,25 +77,30 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
 
         TextView textViewTitle,textViewDeadLineDate;
         Button doneButton;
+        ImageView imageViewDeadLineDate;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.titleTextView);
             textViewDeadLineDate = itemView.findViewById(R.id.deadLineTextView);
             doneButton = itemView.findViewById(R.id.doneButton);
+            imageViewDeadLineDate = itemView.findViewById(R.id.deadLineImageView);
             doneButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     TaskItem taskItem = taskItems.get(position);
 
-                    if(taskItem.getFinishDate().equals(""))
-                    {
-                        taskItem.setFinishDate("Now");
+                    if(taskItem.getFinishDate().equals("")) {
+                        taskItem.setFinishDate(LocalDate.now().toString());
+                        textViewTitle.setPaintFlags(textViewTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                        textViewTitle.setTextColor(Color.parseColor("#676767"));
                         doneButton.setBackgroundResource(R.drawable.ic_baseline_check_circle_24);
                     }
                     else {
                         taskItem.setFinishDate("");
+                        textViewTitle.setPaintFlags(textViewTitle.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+                        textViewTitle.setTextColor(Color.parseColor("#000000"));
                         doneButton.setBackgroundResource(R.drawable.ic_baseline_panorama_fish_eye_24);
                     }
                     toDoListDB.updateTask(taskItem);

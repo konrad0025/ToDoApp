@@ -19,6 +19,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        taskItems.add(new TaskItem(1,"Napisać do Karola","","","","2022-05-26"));
+        taskItems.add(new TaskItem(2,"Ustawić budzik","","","","2022-06-23"));
+        taskItems.add(new TaskItem(3,"Hello World!","","","","2022-04-25"));
+
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this);
