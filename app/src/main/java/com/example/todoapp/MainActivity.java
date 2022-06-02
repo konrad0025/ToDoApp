@@ -8,25 +8,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.TaskDialogListener {
+public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.TaskDialogListener, Serializable {
 
     private ArrayList<TaskItem> taskItems = new ArrayList<>();
     private ToDoListDB toDoListDB = new ToDoListDB(this);
     private TaskRecycleViewAdapter taskRecycleViewAdapter;
     private FloatingActionButton addButton;
+    private TaskRecycleViewAdapter.RecyclerViewClickListener listener;
+    private RecyclerView recyclerView;
+    private EditText editTextFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +44,10 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
         taskItems = toDoListDB.getTaskList();
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        setOnClickListener();
+        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this);
+        taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this, listener);
         recyclerView.setAdapter(taskRecycleViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -49,9 +59,38 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             }
         });
 
+        editTextFilter = findViewById(R.id.filterEditText);
+        editTextFilter.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filterList(editable.toString());
+            }
+        });
+
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+    }
+
+    private void filterList(String text) {
+        ArrayList<TaskItem> filteredList = new ArrayList<>();
+
+        for (TaskItem item : taskItems){
+            if(item.getTitle().toLowerCase().contains(text.toLowerCase())){
+                filteredList.add(item);
+            }
+        }
+        taskRecycleViewAdapter.filterListUpdate(filteredList);
     }
 
     private void openDialog() {
@@ -82,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                     .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
                     .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
@@ -111,11 +149,30 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                             taskRecycleViewAdapter.notifyItemInserted(position);
                         }
                     }).show();
-
             }
-
-
         }
-
     };
+
+    int onClickTaskItemId;
+    int onClickTaskItemPosition;
+    private void setOnClickListener() {
+        listener = new TaskRecycleViewAdapter.RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Intent intent = new Intent(MainActivity.this, TaskDetailsActivity.class);
+                intent.putExtra("POSITION", taskItems.get(position));
+                onClickTaskItemId = taskItems.get(position).getKey_id();
+                onClickTaskItemPosition = position;
+                startActivity(intent);
+            }
+        };
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        TaskItem taskItem = toDoListDB.getTaskItem(onClickTaskItemId);
+        taskItems.set(onClickTaskItemPosition,taskItem);
+        taskRecycleViewAdapter.notifyItemChanged(onClickTaskItemPosition);
+    }
 }

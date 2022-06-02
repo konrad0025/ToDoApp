@@ -1,6 +1,9 @@
 package com.example.todoapp;
 
-public class TaskItem {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class TaskItem implements Parcelable {
 
     private int key_id;
     private String title;
@@ -8,6 +11,9 @@ public class TaskItem {
     private String createDate;
     private String finishDate;
     private String deadLineDate;
+
+    public TaskItem() {
+    }
 
     public TaskItem(int key_id, String title, String description, String createDate, String finishDate, String deadLineDate) {
         this.key_id = key_id;
@@ -17,6 +23,27 @@ public class TaskItem {
         this.finishDate = finishDate;
         this.deadLineDate = deadLineDate;
     }
+
+    protected TaskItem(Parcel in) {
+        key_id = in.readInt();
+        title = in.readString();
+        description = in.readString();
+        createDate = in.readString();
+        finishDate = in.readString();
+        deadLineDate = in.readString();
+    }
+
+    public static final Creator<TaskItem> CREATOR = new Creator<TaskItem>() {
+        @Override
+        public TaskItem createFromParcel(Parcel in) {
+            return new TaskItem(in);
+        }
+
+        @Override
+        public TaskItem[] newArray(int size) {
+            return new TaskItem[size];
+        }
+    };
 
     public int getKey_id() {
         return key_id;
@@ -64,5 +91,20 @@ public class TaskItem {
 
     public void setDeadLineDate(String deadLineDate) {
         this.deadLineDate = deadLineDate;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(key_id);
+        parcel.writeString(title);
+        parcel.writeString(description);
+        parcel.writeString(createDate);
+        parcel.writeString(finishDate);
+        parcel.writeString(deadLineDate);
     }
 }

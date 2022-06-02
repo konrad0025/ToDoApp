@@ -22,10 +22,12 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
     private ArrayList<TaskItem> taskItems;
     private Context context;
     private ToDoListDB toDoListDB;
+    private RecyclerViewClickListener listener;
 
-    public TaskRecycleViewAdapter(ArrayList<TaskItem> taskItems, Context context) {
+    public TaskRecycleViewAdapter(ArrayList<TaskItem> taskItems, Context context, RecyclerViewClickListener listener) {
         this.taskItems = taskItems;
         this.context = context;
+        this.listener = listener;
     }
 
     @NonNull
@@ -61,6 +63,11 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
             holder.imageViewDeadLineDate.setImageResource(R.drawable.ic_baseline_event_24_red);
             holder.textViewDeadLineDate.setTextColor(Color.parseColor("#FF3232"));
         }
+        else
+        {
+            holder.imageViewDeadLineDate.setImageResource(R.drawable.ic_baseline_event_24_black);
+            holder.textViewDeadLineDate.setTextColor(Color.parseColor("#000000"));
+        }
 
     }
 
@@ -69,7 +76,12 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
         return taskItems.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public void filterListUpdate(ArrayList<TaskItem> filteredList) {
+        taskItems = filteredList;
+        notifyDataSetChanged();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView textViewTitle,textViewDeadLineDate;
         Button doneButton;
@@ -81,6 +93,7 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
             textViewDeadLineDate = itemView.findViewById(R.id.deadLineTextView);
             doneButton = itemView.findViewById(R.id.doneButton);
             imageViewDeadLineDate = itemView.findViewById(R.id.deadLineImageView);
+            itemView.setOnClickListener(this);
             doneButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -103,5 +116,14 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
                 }
             });
         }
+
+        @Override
+        public void onClick(View view) {
+            listener.onClick(view, getAdapterPosition());
+        }
+    }
+
+    public interface RecyclerViewClickListener{
+        void onClick(View view, int position);
     }
 }

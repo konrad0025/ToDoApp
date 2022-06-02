@@ -57,6 +57,12 @@ public class ToDoListDB extends SQLiteOpenHelper {
         return db.rawQuery(sql,null,null);
     }
 
+    public Cursor readAllData(int id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String sql = "select * from " + TABLE_NAME + " where " + KEY_ID + " = " + id + "";
+        return db.rawQuery(sql,null,null);
+    }
+
     public ArrayList<TaskItem> getTaskList() {
 
         Cursor cursor = readAllData();
@@ -92,6 +98,40 @@ public class ToDoListDB extends SQLiteOpenHelper {
 
         }while(cursor.moveToNext());
         return taskList;
+    }
+
+    public TaskItem getTaskItem(int id)
+    {
+        Cursor cursor = readAllData(id);
+
+        final int keyIdID = cursor.getColumnIndex(KEY_ID);
+        final int titleID = cursor.getColumnIndex(TITLE);
+        final int descriptionID = cursor.getColumnIndex(DESCRIPTION);
+        final int createDateID = cursor.getColumnIndex(CREATE_DATE);
+        final int finishDateID = cursor.getColumnIndex(FINISH_DATE);
+        final int deadLineDateID = cursor.getColumnIndex(DEAD_LINE_DATE);
+        final TaskItem taskItem = new TaskItem();
+
+        if(!cursor.moveToFirst())
+        {
+            return null;
+        }
+
+        final int keyIdIDValue = cursor.getInt(keyIdID);
+        final String titleIDValue = cursor.getString(titleID);
+        final String descriptionIDValue = cursor.getString(descriptionID);
+        final String createDateIDValue = cursor.getString(createDateID);
+        final String finishDateIDValue = cursor.getString(finishDateID);
+        final String deadLineDateIDValue = cursor.getString(deadLineDateID);
+
+        taskItem.setFinishDate(finishDateIDValue);
+        taskItem.setKey_id(keyIdIDValue);
+        taskItem.setDescription(descriptionIDValue);
+        taskItem.setTitle(titleIDValue);
+        taskItem.setDeadLineDate(deadLineDateIDValue);
+        taskItem.setCreateDate(createDateIDValue);
+        return taskItem;
+
     }
 
     public void updateTask(TaskItem taskItem)
