@@ -2,6 +2,7 @@ package com.example.todoapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class TaskDetailsActivity extends AppCompatActivity {
 
@@ -19,6 +21,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
     TaskItem taskItem;
     private ToDoListDB toDoListDB = new ToDoListDB(this);
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,19 +38,21 @@ public class TaskDetailsActivity extends AppCompatActivity {
         doneButtonHandle();
 
         editTextTitle.setText(taskItem.getTitle());
-        editTextDeadLineDate.setText(taskItem.getDeadLineDate());
-        editTextCreateDate.setText(taskItem.getCreateDate());
-        editTextFinishDateDate.setText(taskItem.getFinishDate());
+        editTextDeadLineDate.setText(taskItem.getDeadLineDate()+" "+taskItem.getDeadLineTime());
+        editTextCreateDate.setText(taskItem.getCreateDate()+" "+taskItem.getCreateTime());
+        editTextFinishDateDate.setText(taskItem.getFinishDate()+" "+taskItem.getFinishTime());
         editTextDescription.setText(taskItem.getDescription());
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(taskItem.getFinishDate().equals("")) {
                     taskItem.setFinishDate(LocalDate.now().toString());
+                    taskItem.setFinishTime(LocalTime.now().getHour()+":"+LocalTime.now().getMinute());
                 }
                 else
                 {
                     taskItem.setFinishDate("");
+                    taskItem.setFinishTime("");
                 }
 
                 doneButtonHandle();
@@ -68,7 +73,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
             editTextTitle.setTextColor(Color.parseColor("#676767"));
             doneButton.setBackgroundResource(R.drawable.ic_baseline_check_circle_24);
         }
-        editTextFinishDateDate.setText(taskItem.getFinishDate());
+        editTextFinishDateDate.setText(taskItem.getFinishDate()+" "+taskItem.getFinishTime());
     }
 
 }

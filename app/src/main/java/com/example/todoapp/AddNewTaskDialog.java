@@ -3,23 +3,27 @@ package com.example.todoapp;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class AddNewTaskDialog extends AppCompatDialogFragment {
 
-    private EditText editTextTaskTitle,editTextTaskDescription,editTextTaskDeadLineDate;
+    private EditText editTextTaskTitle,editTextTaskDescription,editTextTaskDeadLineDate,editTextTaskDeadLineTime;
     private TaskDialogListener listener;
     private Context context;
 
@@ -50,13 +54,15 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
                         String taskTitle = editTextTaskTitle.getText().toString();
                         String taskDescription = editTextTaskDescription.getText().toString();
                         String taskDeadLineDate = editTextTaskDeadLineDate.getText().toString();
-                        listener.applyTexts(taskTitle, taskDescription, taskDeadLineDate);
+                        String taskDeadLineTime = editTextTaskDeadLineTime.getText().toString();
+                        listener.applyTexts(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
                     }
                 });
 
         editTextTaskTitle = view.findViewById(R.id.titleEditText);
         editTextTaskDescription = view.findViewById(R.id.descriptionEditText);
         editTextTaskDeadLineDate = view.findViewById(R.id.deadLineDataPicker);
+        editTextTaskDeadLineTime = view.findViewById(R.id.deadLineTimePicker);
         editTextTaskDeadLineDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,10 +70,23 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(context, android.R.style.Theme_DeviceDefault_Dialog, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        editTextTaskDeadLineDate.setText(year + "-" + (month<10 ? "0"+month : month) + "-" + (day<10 ? "0"+day : day));
+                        editTextTaskDeadLineDate.setText(year + "-" + (month+1<10 ? "0"+(month+1) : (month+1)) + "-" + (day<10 ? "0"+day : day));
                     }
-                }, now.getYear(), now.getMonthValue(), now.getDayOfMonth());
+                }, now.getYear(), now.getMonthValue()-1, now.getDayOfMonth());
                 datePickerDialog.show();
+            }
+        });
+        editTextTaskDeadLineTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalTime now = LocalTime.now();
+                TimePickerDialog timePickerDialog = new TimePickerDialog(context, android.R.style.Theme_DeviceDefault_Dialog, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hour, int min) {
+                        editTextTaskDeadLineTime.setText(hour+":"+min);
+                    }
+                }, now.getHour(),now.getMinute(),true);
+                timePickerDialog.show();
             }
         });
         return builder.create();
@@ -85,7 +104,7 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
     }
 
     public interface TaskDialogListener{
-        void applyTexts(String taskTitle, String taskDescription, String taskDeadLineDate);
+        void applyTexts(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime);
     }
 }
 

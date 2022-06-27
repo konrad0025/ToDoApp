@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this, listener);
+        filterList("");
         recyclerView.setAdapter(taskRecycleViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -99,16 +101,17 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     }
 
     @Override
-    public void applyTexts(String taskTitle, String taskDescription, String taskDeadLineDate) {
-        addNewTask(taskTitle, taskDescription, taskDeadLineDate);
+    public void applyTexts(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
+        addNewTask(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
     }
 
-    private void addNewTask(String taskTitle, String taskDescription, String taskDeadLineDate) {
-        TaskItem newItem = new TaskItem(taskItems.size(), taskTitle, taskDescription, LocalDate.now().toString(), "", taskDeadLineDate);
+    private void addNewTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
+        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), LocalTime.now().getHour()+":"+LocalTime.now().getMinute(), "", "", taskDeadLineDate, taskDeadLineTime);
         taskItems.add(newItem);
         int id = toDoListDB.insertIntoTheDatabase(newItem);
         newItem.setKey_id(id);
-        taskRecycleViewAdapter.notifyItemInserted(taskItems.size()-1);
+        taskRecycleViewAdapter.getTaskItems().add(newItem);
+        filterList(editTextFilter.getText().toString());
     }
 
     TaskItem deletedTaskItem;
@@ -136,17 +139,20 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             switch (direction)
             {
                 case ItemTouchHelper.LEFT:
-                    toDoListDB.removeFromTheDatabase(taskItems.get(position).getKey_id());
-                    deletedTaskItem = taskItems.get(position);
-                    taskItems.remove(position);
+                    toDoListDB.removeFromTheDatabase(taskRecycleViewAdapter.getTaskItems().get(position).getKey_id());
+                    deletedTaskItem = taskRecycleViewAdapter.getTaskItems().get(position);
+                    taskRecycleViewAdapter.getTaskItems().remove(position);
                     taskRecycleViewAdapter.notifyItemRemoved(position);
+                    taskItems.remove(taskItems.indexOf(deletedTaskItem));
+
+                    taskItems = toDoListDB.getTaskList();
                     Snackbar.make(findViewById(R.id.recyclerView),deletedTaskItem.getTitle(),Snackbar.LENGTH_SHORT).setAction("Undo", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            taskItems.add(position,deletedTaskItem);
-                            int id = toDoListDB.insertIntoTheDatabase(deletedTaskItem);
-                            deletedTaskItem.setKey_id(id);
+                            taskRecycleViewAdapter.getTaskItems().add(position,deletedTaskItem);
+                            toDoListDB.insertIntoTheDatabase(deletedTaskItem);
                             taskRecycleViewAdapter.notifyItemInserted(position);
+                            taskItems = toDoListDB.getTaskList();
                         }
                     }).show();
             }
@@ -160,8 +166,8 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             @Override
             public void onClick(View view, int position) {
                 Intent intent = new Intent(MainActivity.this, TaskDetailsActivity.class);
-                intent.putExtra("POSITION", taskItems.get(position));
-                onClickTaskItemId = taskItems.get(position).getKey_id();
+                intent.putExtra("POSITION", taskRecycleViewAdapter.getTaskItems().get(position));
+                onClickTaskItemId = taskRecycleViewAdapter.getTaskItems().get(position).getKey_id();
                 onClickTaskItemPosition = position;
                 startActivity(intent);
             }
@@ -172,7 +178,11 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     protected void onRestart() {
         super.onRestart();
         TaskItem taskItem = toDoListDB.getTaskItem(onClickTaskItemId);
-        taskItems.set(onClickTaskItemPosition,taskItem);
+        if(taskItems.contains(taskRecycleViewAdapter.getTaskItems().get(onClickTaskItemPosition)))
+        {
+            taskItems.set(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(onClickTaskItemPosition)),taskItem);
+        }
+        taskRecycleViewAdapter.getTaskItems().set(onClickTaskItemPosition,taskItem);
         taskRecycleViewAdapter.notifyItemChanged(onClickTaskItemPosition);
     }
 }

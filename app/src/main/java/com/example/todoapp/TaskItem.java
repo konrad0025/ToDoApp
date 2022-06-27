@@ -11,17 +11,23 @@ public class TaskItem implements Parcelable {
     private String createDate;
     private String finishDate;
     private String deadLineDate;
+    private String createTime;
+    private String finishTime;
+    private String deadLineTime;
 
     public TaskItem() {
     }
 
-    public TaskItem(int key_id, String title, String description, String createDate, String finishDate, String deadLineDate) {
+    public TaskItem(int key_id, String title, String description, String createDate, String createTime, String finishDate, String finishTime, String deadLineDate, String deadLineTime) {
         this.key_id = key_id;
         this.title = title;
         this.description = description;
         this.createDate = createDate;
         this.finishDate = finishDate;
         this.deadLineDate = deadLineDate;
+        this.createTime = createTime;
+        this.finishTime = finishTime;
+        this.deadLineTime = deadLineTime;
     }
 
     protected TaskItem(Parcel in) {
@@ -31,6 +37,9 @@ public class TaskItem implements Parcelable {
         createDate = in.readString();
         finishDate = in.readString();
         deadLineDate = in.readString();
+        createTime = in.readString();
+        finishTime = in.readString();
+        deadLineTime = in.readString();
     }
 
     public static final Creator<TaskItem> CREATOR = new Creator<TaskItem>() {
@@ -93,6 +102,18 @@ public class TaskItem implements Parcelable {
         this.deadLineDate = deadLineDate;
     }
 
+    public String getCreateTime() { return createTime; }
+
+    public void setCreateTime(String createTime) { this.createTime = createTime; }
+
+    public String getFinishTime() { return finishTime; }
+
+    public void setFinishTime(String finishTime) { this.finishTime = finishTime; }
+
+    public String getDeadLineTime() { return deadLineTime; }
+
+    public void setDeadLineTime(String deadLineTime) { this.deadLineTime = deadLineTime; }
+
     @Override
     public int describeContents() {
         return 0;
@@ -106,5 +127,8 @@ public class TaskItem implements Parcelable {
         parcel.writeString(createDate);
         parcel.writeString(finishDate);
         parcel.writeString(deadLineDate);
+        parcel.writeString(createTime);
+        parcel.writeString(finishTime);
+        parcel.writeString(deadLineTime);
     }
 }

@@ -126,4 +126,8 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
     public interface RecyclerViewClickListener{
         void onClick(View view, int position);
     }
+
+    public ArrayList<TaskItem> getTaskItems() {
+        return taskItems;
+    }
 }

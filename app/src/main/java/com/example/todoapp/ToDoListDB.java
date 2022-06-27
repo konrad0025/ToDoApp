@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class ToDoListDB extends SQLiteOpenHelper {
 
     private static int DB_VERSION = 1;
-    private static String DATABASE_NAME = "ToDoListDB";
+    private static String DATABASE_NAME = "ToDoListDBv2";
     private static String TABLE_NAME = "TaskItems";
     public static String KEY_ID = "id";
     public static String TITLE = "title";
@@ -19,6 +19,9 @@ public class ToDoListDB extends SQLiteOpenHelper {
     public static String CREATE_DATE = "createDate";
     public static String FINISH_DATE = "finishDate";
     public static String DEAD_LINE_DATE = "deadLineDate";
+    public static String CREATE_TIME = "createTime";
+    public static String FINISH_TIME = "finishTime";
+    public static String DEAD_LINE_TIME = "deadLineTime";
 
     public ToDoListDB(Context context)
     {
@@ -28,7 +31,7 @@ public class ToDoListDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE " + TABLE_NAME + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + TITLE + " TEXT," + DESCRIPTION + " TEXT," + CREATE_DATE + " TEXT,"  + FINISH_DATE + " TEXT,"  + DEAD_LINE_DATE + " TEXT)");
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + TITLE + " TEXT," + DESCRIPTION + " TEXT," + CREATE_DATE + " TEXT," + CREATE_TIME + " TEXT,"  + FINISH_DATE + " TEXT,"  + FINISH_TIME + " TEXT,"  + DEAD_LINE_DATE  + " TEXT,"   + DEAD_LINE_TIME + " TEXT)");
     }
 
     @Override
@@ -46,7 +49,13 @@ public class ToDoListDB extends SQLiteOpenHelper {
         cv.put(CREATE_DATE, taskItem.getCreateDate());
         cv.put(FINISH_DATE, taskItem.getFinishDate());
         cv.put(DEAD_LINE_DATE, taskItem.getDeadLineDate());
-
+        cv.put(CREATE_TIME, taskItem.getCreateTime());
+        cv.put(FINISH_TIME, taskItem.getFinishTime());
+        cv.put(DEAD_LINE_TIME, taskItem.getDeadLineTime());
+        if(taskItem.getKey_id()!=-1)
+        {
+            cv.put(KEY_ID,taskItem.getKey_id());
+        }
         long id = db.insert(TABLE_NAME,null,cv);
         return (int)id;
     }
@@ -73,6 +82,9 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final int createDateID = cursor.getColumnIndex(CREATE_DATE);
         final int finishDateID = cursor.getColumnIndex(FINISH_DATE);
         final int deadLineDateID = cursor.getColumnIndex(DEAD_LINE_DATE);
+        final int createTimeID = cursor.getColumnIndex(CREATE_TIME);
+        final int finishTimeID = cursor.getColumnIndex(FINISH_TIME);
+        final int deadLineTimeID = cursor.getColumnIndex(DEAD_LINE_TIME);
 
         final ArrayList<TaskItem> taskList = new ArrayList<>();
 
@@ -88,13 +100,19 @@ public class ToDoListDB extends SQLiteOpenHelper {
             final String createDateIDValue = cursor.getString(createDateID);
             final String finishDateIDValue = cursor.getString(finishDateID);
             final String deadLineDateIDValue = cursor.getString(deadLineDateID);
+            final String createTimeIDValue = cursor.getString(createTimeID);
+            final String finishTimeIDValue = cursor.getString(finishTimeID);
+            final String deadLineTimeIDValue = cursor.getString(deadLineTimeID);
 
             taskList.add(new TaskItem(keyIdIDValue,
                     titleIDValue,
                     descriptionIDValue,
                     createDateIDValue,
+                    createTimeIDValue,
                     finishDateIDValue,
-                    deadLineDateIDValue));
+                    finishTimeIDValue,
+                    deadLineDateIDValue,
+                    deadLineTimeIDValue));
 
         }while(cursor.moveToNext());
         return taskList;
@@ -110,6 +128,10 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final int createDateID = cursor.getColumnIndex(CREATE_DATE);
         final int finishDateID = cursor.getColumnIndex(FINISH_DATE);
         final int deadLineDateID = cursor.getColumnIndex(DEAD_LINE_DATE);
+        final int createTimeID = cursor.getColumnIndex(CREATE_TIME);
+        final int finishTimeID = cursor.getColumnIndex(FINISH_TIME);
+        final int deadLineTimeID = cursor.getColumnIndex(DEAD_LINE_TIME);
+
         final TaskItem taskItem = new TaskItem();
 
         if(!cursor.moveToFirst())
@@ -123,6 +145,9 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final String createDateIDValue = cursor.getString(createDateID);
         final String finishDateIDValue = cursor.getString(finishDateID);
         final String deadLineDateIDValue = cursor.getString(deadLineDateID);
+        final String createTimeIDValue = cursor.getString(createTimeID);
+        final String finishTimeIDValue = cursor.getString(finishTimeID);
+        final String deadLineTimeIDValue = cursor.getString(deadLineTimeID);
 
         taskItem.setFinishDate(finishDateIDValue);
         taskItem.setKey_id(keyIdIDValue);
@@ -130,6 +155,9 @@ public class ToDoListDB extends SQLiteOpenHelper {
         taskItem.setTitle(titleIDValue);
         taskItem.setDeadLineDate(deadLineDateIDValue);
         taskItem.setCreateDate(createDateIDValue);
+        taskItem.setCreateTime(createTimeIDValue);
+        taskItem.setFinishTime(finishTimeIDValue);
+        taskItem.setDeadLineTime(deadLineTimeIDValue);
         return taskItem;
 
     }
@@ -144,7 +172,9 @@ public class ToDoListDB extends SQLiteOpenHelper {
         cv.put(CREATE_DATE, taskItem.getCreateDate());
         cv.put(FINISH_DATE, taskItem.getFinishDate());
         cv.put(DEAD_LINE_DATE, taskItem.getDeadLineDate());
-
+        cv.put(CREATE_TIME, taskItem.getCreateTime());
+        cv.put(FINISH_TIME, taskItem.getFinishTime());
+        cv.put(DEAD_LINE_TIME, taskItem.getDeadLineTime());
         db.update(TABLE_NAME, cv, "id = ?", new String[]{taskItem.getKey_id()+""});
     }
 
