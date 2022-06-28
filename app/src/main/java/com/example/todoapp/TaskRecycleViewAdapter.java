@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDate;
@@ -70,6 +71,14 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
             holder.imageViewDeadLineDate.setImageResource(R.drawable.ic_baseline_event_24_black);
             holder.textViewDeadLineDate.setTextColor(Color.parseColor("#000000"));
         }
+        if(taskItem.getIsHidden().equals("true"))
+        {
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#DCDCDC"));
+        }
+        else
+        {
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
+        }
 
     }
 
@@ -88,9 +97,11 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
         TextView textViewTitle,textViewDeadLineDate;
         Button doneButton;
         ImageView imageViewDeadLineDate;
+        CardView cardView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            cardView = itemView.findViewById(R.id.cardView);
             textViewTitle = itemView.findViewById(R.id.titleTextView);
             textViewDeadLineDate = itemView.findViewById(R.id.deadLineTextView);
             doneButton = itemView.findViewById(R.id.doneButton);

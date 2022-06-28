@@ -2,6 +2,8 @@ package com.example.todoapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,6 +16,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,7 +43,10 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     private RecyclerView recyclerView;
     private EditText editTextFilter;
     private Button threeDotButton;
+    private MenuBuilder menuBuilder;
+    private boolean showHiddenTasks = false;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,10 +89,51 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         });
 
         threeDotButton = findViewById(R.id.threeDotImageView);
+
+        menuBuilder = new MenuBuilder(this);
+        MenuInflater inflater = new MenuInflater(this);
+        inflater.inflate(R.menu.popup_menu, menuBuilder);
         threeDotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MenuPopupHelper optionMenu = new MenuPopupHelper(MainActivity.this,menuBuilder,view);
+                optionMenu.setForceShowIcon(true);
 
+                menuBuilder.setCallback(new MenuBuilder.Callback() {
+                    @Override
+                    public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+                        switch (item.getItemId())
+                        {
+                            case R.id.showHiddenTasks:
+                                if(showHiddenTasks)
+                                {
+                                    item.setIcon(R.drawable.ic_baseline_visibility_24);
+                                    item.setTitle("Show hidden tasks");
+                                    showHiddenTasks = false;
+                                }
+                                else
+                                {
+                                    item.setIcon(R.drawable.ic_baseline_visibility_off_24);
+                                    item.setTitle("Hide tasks");
+                                    showHiddenTasks = true;
+                                }
+                                filterList(editTextFilter.getText().toString());
+                                return true;
+                            case R.id.chooseCategory:
+                                return true;
+                            case R.id.sortByTime:
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+
+                    @Override
+                    public void onMenuModeChange(@NonNull MenuBuilder menu) {
+
+                    }
+                });
+                optionMenu.show();
             }
         });
 
@@ -99,7 +147,11 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
         for (TaskItem item : taskItems){
             if(item.getTitle().toLowerCase().contains(text.toLowerCase())){
-                filteredList.add(item);
+                Log.d("check",item.getIsHidden()+"");
+                if(!((!showHiddenTasks) && item.getIsHidden().equals("true")))
+                {
+                    filteredList.add(item);
+                }
             }
         }
         taskRecycleViewAdapter.filterListUpdate(filteredList);
@@ -116,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     }
 
     private void addNewTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
-        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), LocalTime.now().getHour()+":"+LocalTime.now().getMinute(), "", "", taskDeadLineDate, taskDeadLineTime);
+        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false");
         taskItems.add(newItem);
         int id = toDoListDB.insertIntoTheDatabase(newItem);
         newItem.setKey_id(id);
@@ -126,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
     TaskItem deletedTaskItem;
 
-    ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT /*| ItemTouchHelper.RIGHT*/) {
+    ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
@@ -134,11 +186,28 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
-                    .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
-                    .create()
-                    .decorate();
+
+            if(taskRecycleViewAdapter.getTaskItems().get(viewHolder.getPosition()).getIsHidden().equals("true"))
+            {
+                new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.white))
+                        .addSwipeRightActionIcon(R.drawable.ic_baseline_visibility_24)
+                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
+                        .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
+                        .create()
+                        .decorate();
+            }
+            else
+            {
+                new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.light_gray))
+                        .addSwipeRightActionIcon(R.drawable.ic_baseline_visibility_off_24)
+                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
+                        .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
+                        .create()
+                        .decorate();
+            }
+
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
@@ -159,17 +228,31 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                     Snackbar.make(findViewById(R.id.recyclerView),deletedTaskItem.getTitle(),Snackbar.LENGTH_SHORT).setAction("Undo", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            taskRecycleViewAdapter.getTaskItems().add(position,deletedTaskItem);
                             toDoListDB.insertIntoTheDatabase(deletedTaskItem);
-                            taskRecycleViewAdapter.notifyItemInserted(position);
                             taskItems = toDoListDB.getTaskList();
+                            filterList(editTextFilter.getText().toString());
                         }
                     }).show();
+                    return;
+                case ItemTouchHelper.RIGHT:
+                    if(taskRecycleViewAdapter.getTaskItems().get(position).getIsHidden().equals("true"))
+                    {
+                        taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("false");
+                        toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
+                        filterList(editTextFilter.getText().toString());
+                    }
+                    else
+                    {
+                        taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("true");
+                        toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
+                        filterList(editTextFilter.getText().toString());
+
+                    }
             }
         }
     };
 
-    int onClickTaskItemId;
+    int onClickTaskItemId = -1;
     int onClickTaskItemPosition;
     private void setOnClickListener() {
         listener = new TaskRecycleViewAdapter.RecyclerViewClickListener() {
@@ -187,12 +270,16 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     @Override
     protected void onRestart() {
         super.onRestart();
-        TaskItem taskItem = toDoListDB.getTaskItem(onClickTaskItemId);
-        if(taskItems.contains(taskRecycleViewAdapter.getTaskItems().get(onClickTaskItemPosition)))
+        if(onClickTaskItemId != -1)
         {
-            taskItems.set(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(onClickTaskItemPosition)),taskItem);
+            TaskItem taskItem = toDoListDB.getTaskItem(onClickTaskItemId);
+            if(taskItems.contains(taskRecycleViewAdapter.getTaskItems().get(onClickTaskItemPosition)))
+            {
+                taskItems.set(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(onClickTaskItemPosition)),taskItem);
+            }
+            taskRecycleViewAdapter.getTaskItems().set(onClickTaskItemPosition,taskItem);
+            taskRecycleViewAdapter.notifyItemChanged(onClickTaskItemPosition);
+            onClickTaskItemId = -1;
         }
-        taskRecycleViewAdapter.getTaskItems().set(onClickTaskItemPosition,taskItem);
-        taskRecycleViewAdapter.notifyItemChanged(onClickTaskItemPosition);
     }
 }

@@ -47,7 +47,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(taskItem.getFinishDate().equals("")) {
                     taskItem.setFinishDate(LocalDate.now().toString());
-                    taskItem.setFinishTime(LocalTime.now().getHour()+":"+LocalTime.now().getMinute());
+                    taskItem.setFinishTime((LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()));
                 }
                 else
                 {

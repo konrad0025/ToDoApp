@@ -83,7 +83,7 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(context, android.R.style.Theme_DeviceDefault_Dialog, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int min) {
-                        editTextTaskDeadLineTime.setText(hour+":"+min);
+                        editTextTaskDeadLineTime.setText((hour<10 ? "0"+(hour) : hour)+":"+(min<10 ? "0"+(min) : min));
                     }
                 }, now.getHour(),now.getMinute(),true);
                 timePickerDialog.show();
