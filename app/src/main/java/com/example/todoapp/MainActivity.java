@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     private TaskRecycleViewAdapter.RecyclerViewClickListener listener;
     private RecyclerView recyclerView;
     private EditText editTextFilter;
+    private Button threeDotButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +78,14 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             @Override
             public void afterTextChanged(Editable editable) {
                 filterList(editable.toString());
+            }
+        });
+
+        threeDotButton = findViewById(R.id.threeDotImageView);
+        threeDotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 

@@ -1,5 +1,6 @@
 package com.example.todoapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -39,13 +40,14 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
         return new ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         final TaskItem taskItem = taskItems.get(position);
 
         holder.textViewTitle.setText(taskItem.getTitle());
-        holder.textViewDeadLineDate.setText(taskItem.getDeadLineDate());
+        holder.textViewDeadLineDate.setText(taskItem.getDeadLineDate()+" "+taskItem.getDeadLineTime());
         if(taskItem.getFinishDate().equals(""))
         {
             holder.doneButton.setBackgroundResource(R.drawable.ic_baseline_panorama_fish_eye_24);
