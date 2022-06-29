@@ -3,13 +3,14 @@ package com.example.todoapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.example.todoapp.database.ToDoListDB;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

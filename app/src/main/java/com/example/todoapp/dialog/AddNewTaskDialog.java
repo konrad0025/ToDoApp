@@ -1,4 +1,4 @@
-package com.example.todoapp;
+package com.example.todoapp.dialog;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -7,7 +7,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
@@ -17,6 +16,8 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import com.example.todoapp.R;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -38,7 +39,7 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.add_new_task,null);
+        View view = inflater.inflate(R.layout.add_new_task_dialog,null);
 
         builder.setView(view)
                 .setTitle("New Task")

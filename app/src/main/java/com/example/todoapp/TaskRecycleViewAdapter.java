@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.todoapp.database.ToDoListDB;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 

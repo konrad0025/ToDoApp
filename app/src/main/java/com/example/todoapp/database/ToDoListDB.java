@@ -1,4 +1,4 @@
-package com.example.todoapp;
+package com.example.todoapp.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.example.todoapp.TaskItem;
 
 import java.util.ArrayList;
 

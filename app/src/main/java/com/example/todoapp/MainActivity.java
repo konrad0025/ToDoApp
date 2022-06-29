@@ -22,6 +22,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.todoapp.database.ToDoListDB;
+import com.example.todoapp.dialog.AddNewTaskDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -29,7 +31,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openDialog();
+                openAddNewTaskDialog();
             }
         });
 
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                                 filterList(editTextFilter.getText().toString());
                                 return true;
                             case R.id.chooseCategory:
+                                openChooseCategoryDialog();
                                 return true;
                             case R.id.sortByTime:
                                 return true;
@@ -157,9 +159,14 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         taskRecycleViewAdapter.filterListUpdate(filteredList);
     }
 
-    private void openDialog() {
+    private void openAddNewTaskDialog() {
         AddNewTaskDialog addNewTaskDialog = new AddNewTaskDialog(this);
         addNewTaskDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    private void openChooseCategoryDialog() {
+        ChooseCategoryDialog chooseCategoryDialog = new ChooseCategoryDialog(this);
+        chooseCategoryDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     @Override
@@ -187,28 +194,30 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
-            if(taskRecycleViewAdapter.getTaskItems().get(viewHolder.getPosition()).getIsHidden().equals("true"))
+            if(viewHolder.getAdapterPosition() != -1)
             {
-                new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                        .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.white))
-                        .addSwipeRightActionIcon(R.drawable.ic_baseline_visibility_24)
-                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
-                        .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
-                        .create()
-                        .decorate();
-            }
-            else
-            {
-                new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                        .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.light_gray))
-                        .addSwipeRightActionIcon(R.drawable.ic_baseline_visibility_off_24)
-                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
-                        .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
-                        .create()
-                        .decorate();
-            }
+                if(taskRecycleViewAdapter.getTaskItems().get(viewHolder.getAdapterPosition()).getIsHidden().equals("true"))
+                {
+                    new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                            .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.white))
+                            .addSwipeRightActionIcon(R.drawable.ic_baseline_visibility_24)
+                            .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
+                            .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
+                            .create()
+                            .decorate();
+                }
+                else
+                {
+                    new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                            .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.light_gray))
+                            .addSwipeRightActionIcon(R.drawable.ic_baseline_visibility_off_24)
+                            .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
+                            .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
+                            .create()
+                            .decorate();
+                }
 
-
+            }
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
 
