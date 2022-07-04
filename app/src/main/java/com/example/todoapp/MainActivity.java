@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.todoapp.comparator.DeadLineComparator;
 import com.example.todoapp.database.ToDoListDB;
 import com.example.todoapp.dialog.AddNewCategoryDialog;
 import com.example.todoapp.dialog.AddNewTaskDialog;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     private MenuBuilder menuBuilder;
     private boolean showHiddenTasks = false;
     private String selectedCategory = "";
+    private boolean isSortedAsc = true;
     private ArrayList<String> categoryList;
 
     @SuppressLint("RestrictedApi")
@@ -129,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                                 openChooseCategoryDialog();
                                 return true;
                             case R.id.sortByTime:
+                                isSortedAsc = !isSortedAsc;
+                                filterList(editTextFilter.getText().toString());
                                 return true;
                             case R.id.addCategory:
                                 openAddCategoryDialog();
@@ -162,6 +166,14 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                     filteredList.add(item);
                 }
             }
+        }
+        if(isSortedAsc)
+        {
+            filteredList.sort(new DeadLineComparator().reversed());
+        }
+        else
+        {
+            filteredList.sort(new DeadLineComparator());
         }
         taskRecycleViewAdapter.filterListUpdate(filteredList);
     }
