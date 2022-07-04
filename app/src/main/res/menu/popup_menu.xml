@@ -5,6 +5,10 @@
         android:icon="@drawable/ic_baseline_visibility_24"
         android:title="Show hidden tasks" />
     <item
+        android:id="@+id/addCategory"
+        android:icon="@drawable/ic_baseline_add_black_24"
+        android:title="Add new category" />
+    <item
         android:id="@+id/chooseCategory"
         android:icon="@drawable/ic_baseline_format_list_bulleted_24"
         android:title="Choose category" />

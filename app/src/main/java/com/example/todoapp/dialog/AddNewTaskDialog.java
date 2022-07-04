@@ -56,7 +56,7 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
                         String taskDescription = editTextTaskDescription.getText().toString();
                         String taskDeadLineDate = editTextTaskDeadLineDate.getText().toString();
                         String taskDeadLineTime = editTextTaskDeadLineTime.getText().toString();
-                        listener.applyTexts(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
+                        listener.applyTask(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
                     }
                 });
 
@@ -105,7 +105,7 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
     }
 
     public interface TaskDialogListener{
-        void applyTexts(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime);
+        void applyTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime);
     }
 }
 

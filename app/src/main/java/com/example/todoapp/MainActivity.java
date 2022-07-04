@@ -15,15 +15,17 @@ import android.graphics.Canvas;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.todoapp.database.ToDoListDB;
+import com.example.todoapp.dialog.AddNewCategoryDialog;
 import com.example.todoapp.dialog.AddNewTaskDialog;
+import com.example.todoapp.dialog.ChooseCategoryDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -31,10 +33,11 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.TaskDialogListener, Serializable {
+public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.TaskDialogListener, Serializable, ChooseCategoryDialog.ChooseCategoryDialogListener, AddNewCategoryDialog.NewCategoryDialogListener {
 
     private ArrayList<TaskItem> taskItems = new ArrayList<>();
     private ToDoListDB toDoListDB = new ToDoListDB(this);
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     private Button threeDotButton;
     private MenuBuilder menuBuilder;
     private boolean showHiddenTasks = false;
+    private String selectedCategory = "";
+    private ArrayList<String> categoryList;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -54,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         setContentView(R.layout.activity_main);
 
         taskItems = toDoListDB.getTaskList();
-
+        categoryList = toDoListDB.getCategoryList();
         setOnClickListener();
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -125,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                                 return true;
                             case R.id.sortByTime:
                                 return true;
+                            case R.id.addCategory:
+                                openAddCategoryDialog();
+                                return true;
                             default:
                                 return false;
                         }
@@ -149,8 +157,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
         for (TaskItem item : taskItems){
             if(item.getTitle().toLowerCase().contains(text.toLowerCase())){
-                Log.d("check",item.getIsHidden()+"");
-                if(!((!showHiddenTasks) && item.getIsHidden().equals("true")))
+                if(!((!showHiddenTasks) && item.getIsHidden().equals("true")) && item.getCategory().contains(selectedCategory))
                 {
                     filteredList.add(item);
                 }
@@ -165,17 +172,22 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     }
 
     private void openChooseCategoryDialog() {
-        ChooseCategoryDialog chooseCategoryDialog = new ChooseCategoryDialog(this);
+        ChooseCategoryDialog chooseCategoryDialog = new ChooseCategoryDialog(this, categoryList);
         chooseCategoryDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
+    private void openAddCategoryDialog() {
+        AddNewCategoryDialog addNewCategoryDialog = new AddNewCategoryDialog(this);
+        addNewCategoryDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
     @Override
-    public void applyTexts(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
+    public void applyTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
         addNewTask(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
     }
 
     private void addNewTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
-        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false");
+        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false", "");
         taskItems.add(newItem);
         int id = toDoListDB.insertIntoTheDatabase(newItem);
         newItem.setKey_id(id);
@@ -269,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             public void onClick(View view, int position) {
                 Intent intent = new Intent(MainActivity.this, TaskDetailsActivity.class);
                 intent.putExtra("POSITION", taskRecycleViewAdapter.getTaskItems().get(position));
+                intent.putStringArrayListExtra("LIST_OF_CATEGORY", categoryList);
                 onClickTaskItemId = taskRecycleViewAdapter.getTaskItems().get(position).getKey_id();
                 onClickTaskItemPosition = position;
                 startActivity(intent);
@@ -289,6 +302,28 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             taskRecycleViewAdapter.getTaskItems().set(onClickTaskItemPosition,taskItem);
             taskRecycleViewAdapter.notifyItemChanged(onClickTaskItemPosition);
             onClickTaskItemId = -1;
+        }
+    }
+
+    @Override
+    public void applyCategory(String category) {
+        selectedCategory = category;
+        filterList(editTextFilter.getText().toString());
+    }
+
+    @Override
+    public void applyTask(String newCategory) {
+        if(!categoryList.contains(newCategory))
+        {
+            categoryList.add(newCategory);
+            Collections.sort(categoryList);
+        }
+        else
+        {
+            if(!newCategory.equals(""))
+            {
+                Toast.makeText(getApplicationContext(),"Category already exist",Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

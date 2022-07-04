@@ -15,11 +15,12 @@ public class TaskItem implements Parcelable {
     private String finishTime;
     private String deadLineTime;
     private String isHidden;
+    private String category;
 
     public TaskItem() {
     }
 
-    public TaskItem(int key_id, String title, String description, String createDate, String createTime, String finishDate, String finishTime, String deadLineDate, String deadLineTime, String isHidden) {
+    public TaskItem(int key_id, String title, String description, String createDate, String createTime, String finishDate, String finishTime, String deadLineDate, String deadLineTime, String isHidden, String category) {
         this.key_id = key_id;
         this.title = title;
         this.description = description;
@@ -30,6 +31,7 @@ public class TaskItem implements Parcelable {
         this.finishTime = finishTime;
         this.deadLineTime = deadLineTime;
         this.isHidden = isHidden;
+        this.category = category;
     }
 
     protected TaskItem(Parcel in) {
@@ -43,6 +45,7 @@ public class TaskItem implements Parcelable {
         finishTime = in.readString();
         deadLineTime = in.readString();
         isHidden = in.readString();
+        category = in.readString();
     }
 
     public static final Creator<TaskItem> CREATOR = new Creator<TaskItem>() {
@@ -121,6 +124,10 @@ public class TaskItem implements Parcelable {
 
     public void setIsHidden(String isHidden) { this.isHidden = isHidden; }
 
+    public String getCategory() { return category; }
+
+    public void setCategory(String category) { this.category = category; }
+
     @Override
     public int describeContents() {
         return 0;
@@ -138,5 +145,6 @@ public class TaskItem implements Parcelable {
         parcel.writeString(finishTime);
         parcel.writeString(deadLineTime);
         parcel.writeString(isHidden);
+        parcel.writeString(category);
     }
 }
