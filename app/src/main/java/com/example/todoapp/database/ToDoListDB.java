@@ -86,7 +86,6 @@ public class ToDoListDB extends SQLiteOpenHelper {
         Cursor cursor = readAllData();
         final int categoryID = cursor.getColumnIndex(CATEGORY);
         final ArrayList<String> categoryList = new ArrayList<>();
-        categoryList.add("");
         if(!cursor.moveToFirst())
         {
             return categoryList;
@@ -95,7 +94,7 @@ public class ToDoListDB extends SQLiteOpenHelper {
 
             final String categoryIDValue = cursor.getString(categoryID);
 
-            if(!categoryList.contains(categoryIDValue))
+            if(!categoryList.contains(categoryIDValue) && !categoryIDValue.equals(""))
             {
                 categoryList.add(categoryIDValue);
             }

@@ -43,13 +43,13 @@ public class AddNewTaskDialog extends AppCompatDialogFragment {
 
         builder.setView(view)
                 .setTitle("New Task")
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                     }
                 })
-                .setPositiveButton("add", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String taskTitle = editTextTaskTitle.getText().toString();

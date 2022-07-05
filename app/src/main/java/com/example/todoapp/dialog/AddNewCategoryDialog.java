@@ -37,14 +37,14 @@ public class AddNewCategoryDialog extends AppCompatDialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.add_new_category_dialog,null);
         builder.setView(view)
-                .setTitle("New Task")
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                .setTitle("New Category")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                     }
                 })
-                .setPositiveButton("add", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String newCategory = editTextCategory.getText().toString();

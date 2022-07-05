@@ -28,7 +28,7 @@ import java.util.ArrayList;
 public class TaskDetailsActivity extends AppCompatActivity {
 
     EditText editTextTitle,editTextDeadLineDate,editTextCreateDate,editTextFinishDateDate,editTextDescription;
-    Button doneButton;
+    Button doneButton,deleteCategoryButton;
     TaskItem taskItem;
     private ToDoListDB toDoListDB = new ToDoListDB(this);
     AutoCompleteTextView autoCompleteTextView;
@@ -50,8 +50,9 @@ public class TaskDetailsActivity extends AppCompatActivity {
         editTextDescription = findViewById(R.id.descriptionEditText);
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         doneButton = findViewById(R.id.doneButton);
-        doneButtonHandle();
-
+        deleteCategoryButton = findViewById(R.id.deleteCategoryButton);
+        taskDoneButtonHandle();
+        deleteCategoryButtonHandle();
         editTextTitle.setText(taskItem.getTitle());
         editTextTitle.addTextChangedListener(new TextWatcher() {
             @Override
@@ -128,10 +129,20 @@ public class TaskDetailsActivity extends AppCompatActivity {
                     taskItem.setFinishTime("");
                 }
 
-                doneButtonHandle();
+                taskDoneButtonHandle();
                 toDoListDB.updateTask(taskItem);
             }
         });
+        deleteCategoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskItem.setCategory("");
+                autoCompleteTextView.setText("");
+                deleteCategoryButtonHandle();
+                toDoListDB.updateTask(taskItem);
+            }
+        });
+
 
         autoCompleteTextView.setText(taskItem.getCategory());
         adapterItems = new ArrayAdapter<String>(this,R.layout.list_category_item, categoryList);
@@ -142,12 +153,13 @@ public class TaskDetailsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 String category = adapterView.getItemAtPosition(position).toString();
                 taskItem.setCategory(category);
+                deleteCategoryButtonHandle();
                 toDoListDB.updateTask(taskItem);
             }
         });
     }
 
-    void doneButtonHandle()
+    void taskDoneButtonHandle()
     {
         if(taskItem.getFinishDate().equals("")) {
             editTextTitle.setPaintFlags(editTextTitle.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
@@ -161,5 +173,13 @@ public class TaskDetailsActivity extends AppCompatActivity {
         }
         editTextFinishDateDate.setText(taskItem.getFinishDate()+" "+taskItem.getFinishTime());
     }
-
+    void deleteCategoryButtonHandle()
+    {
+        if(taskItem.getCategory().equals("")) {
+            deleteCategoryButton.setVisibility(View.INVISIBLE);
+        }
+        else {
+            deleteCategoryButton.setVisibility(View.VISIBLE);
+        }
+    }
 }
