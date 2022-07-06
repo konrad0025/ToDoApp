@@ -1,13 +1,22 @@
 package com.example.todoapp;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -27,13 +36,14 @@ import java.util.ArrayList;
 
 public class TaskDetailsActivity extends AppCompatActivity {
 
-    EditText editTextTitle,editTextDeadLineDate,editTextCreateDate,editTextFinishDateDate,editTextDescription;
+    EditText editTextTitle,editTextDeadLineDate,editTextCreateDate,editTextFinishDateDate,editTextDescription,editTextFile;
     Button doneButton,deleteCategoryButton;
     TaskItem taskItem;
     private ToDoListDB toDoListDB = new ToDoListDB(this);
     AutoCompleteTextView autoCompleteTextView;
     ArrayAdapter<String> adapterItems;
     ArrayList<String> categoryList;
+    Uri uri;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -48,7 +58,10 @@ public class TaskDetailsActivity extends AppCompatActivity {
         editTextCreateDate = findViewById(R.id.createDateEditText);
         editTextFinishDateDate = findViewById(R.id.finishDateEditText);
         editTextDescription = findViewById(R.id.descriptionEditText);
+        editTextFile = findViewById(R.id.fileEditText);
+
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
+
         doneButton = findViewById(R.id.doneButton);
         deleteCategoryButton = findViewById(R.id.deleteCategoryButton);
         taskDoneButtonHandle();
@@ -157,7 +170,30 @@ public class TaskDetailsActivity extends AppCompatActivity {
                 toDoListDB.updateTask(taskItem);
             }
         });
+
+        editTextFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("*/*");
+                activityResultLauncher.launch(intent);
+            }
+        });
     }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if(result.getResultCode() == Activity.RESULT_OK){
+                        Intent data = result.getData();
+                        uri = data.getData();
+                        getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        editTextFile.setText(getFileName(uri));
+                    }
+                }
+            });
 
     void taskDoneButtonHandle()
     {
@@ -181,5 +217,29 @@ public class TaskDetailsActivity extends AppCompatActivity {
         else {
             deleteCategoryButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    //https://stackoverflow.com/questions/5568874/how-to-extract-the-file-name-from-uri-returned-from-intent-action-get-content
+    @SuppressLint("Range")
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 }

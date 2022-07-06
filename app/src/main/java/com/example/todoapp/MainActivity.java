@@ -318,13 +318,13 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     }
 
     @Override
-    public void applyCategory(String category) {
+    public void applySelectedCategory(String category) {
         selectedCategory = category;
         filterList(editTextFilter.getText().toString());
     }
 
     @Override
-    public void applyTask(String newCategory) {
+    public void applyNewCategory(String newCategory) {
         if(!categoryList.contains(newCategory))
         {
             categoryList.add(newCategory);

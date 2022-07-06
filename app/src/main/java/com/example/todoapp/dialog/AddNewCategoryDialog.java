@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -16,8 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.example.todoapp.R;
-
-import java.util.ArrayList;
 
 public class AddNewCategoryDialog extends AppCompatDialogFragment {
 
@@ -48,7 +44,7 @@ public class AddNewCategoryDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String newCategory = editTextCategory.getText().toString();
-                        listener.applyTask(newCategory);
+                        listener.applyNewCategory(newCategory);
                     }
                 });
         editTextCategory = view.findViewById(R.id.categoryEditText);
@@ -67,6 +63,6 @@ public class AddNewCategoryDialog extends AppCompatDialogFragment {
     }
 
     public interface NewCategoryDialogListener{
-        void applyTask(String newCategory);
+        void applyNewCategory(String newCategory);
     }
 }

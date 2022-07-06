@@ -45,13 +45,13 @@ public class ChooseCategoryDialog extends AppCompatDialogFragment {
                 .setNegativeButton("Clear", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        listener.applyCategory("");
+                        listener.applySelectedCategory("");
                     }
                 })
                 .setPositiveButton("Select", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        listener.applyCategory(selectedCategory);
+                        listener.applySelectedCategory(selectedCategory);
                     }
                 });
         autoCompleteTextView = view.findViewById(R.id.autoCompleteTextView);
@@ -81,6 +81,6 @@ public class ChooseCategoryDialog extends AppCompatDialogFragment {
     }
 
     public interface ChooseCategoryDialogListener{
-        void applyCategory(String category);
+        void applySelectedCategory(String category);
     }
 }
