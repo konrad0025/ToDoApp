@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
     }
 
     private void addNewTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
-        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false", "");
+        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false", "", "");
         taskItems.add(newItem);
         int id = toDoListDB.insertIntoTheDatabase(newItem);
         newItem.setKey_id(id);

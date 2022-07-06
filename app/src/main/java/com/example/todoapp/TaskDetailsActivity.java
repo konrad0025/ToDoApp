@@ -5,20 +5,26 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,18 +32,26 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TimePicker;
 
 import com.example.todoapp.database.ToDoListDB;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class TaskDetailsActivity extends AppCompatActivity {
 
-    EditText editTextTitle,editTextDeadLineDate,editTextCreateDate,editTextFinishDateDate,editTextDescription,editTextFile;
-    Button doneButton,deleteCategoryButton;
+    EditText editTextTitle,editTextDeadLineDate,editTextCreateDate,editTextFinishDateDate,editTextDescription,editTextFile,editTextNotification;
+    Button doneButton,deleteCategoryButton,deleteFileButton;
     TaskItem taskItem;
     private ToDoListDB toDoListDB = new ToDoListDB(this);
     AutoCompleteTextView autoCompleteTextView;
@@ -59,13 +73,16 @@ public class TaskDetailsActivity extends AppCompatActivity {
         editTextFinishDateDate = findViewById(R.id.finishDateEditText);
         editTextDescription = findViewById(R.id.descriptionEditText);
         editTextFile = findViewById(R.id.fileEditText);
+        editTextNotification = findViewById(R.id.notificationEditText);
 
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
 
         doneButton = findViewById(R.id.doneButton);
         deleteCategoryButton = findViewById(R.id.deleteCategoryButton);
+        deleteFileButton = findViewById(R.id.deleteFileButton);
         taskDoneButtonHandle();
         deleteCategoryButtonHandle();
+        deleteFileButtonHandle();
         editTextTitle.setText(taskItem.getTitle());
         editTextTitle.addTextChangedListener(new TextWatcher() {
             @Override
@@ -153,11 +170,13 @@ public class TaskDetailsActivity extends AppCompatActivity {
                 autoCompleteTextView.setText("");
                 deleteCategoryButtonHandle();
                 toDoListDB.updateTask(taskItem);
+
             }
         });
 
 
         autoCompleteTextView.setText(taskItem.getCategory());
+
         adapterItems = new ArrayAdapter<String>(this,R.layout.list_category_item, categoryList);
         autoCompleteTextView.setAdapter(adapterItems);
 
@@ -174,11 +193,38 @@ public class TaskDetailsActivity extends AppCompatActivity {
         editTextFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("*/*");
-                activityResultLauncher.launch(intent);
+                if(taskItem.getFileName().equals(""))
+                {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.setType("*/*");
+                    activityResultLauncher.launch(intent);
+                }
+                else
+                {
+                    File file = new File(getFilesDir().getAbsolutePath()+"/"+taskItem.getFileName());
+                    uri = FileProvider.getUriForFile(TaskDetailsActivity.this, getPackageName() + ".provider", file);
+                    String type = getContentResolver().getType(uri);
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.setDataAndType(uri, type);
+                    startActivity(intent);
+                }
             }
         });
+
+        deleteFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteFile(taskItem.getFileName());
+                taskItem.setFileName("");
+                editTextFile.setText("");
+                deleteFileButtonHandle();
+                toDoListDB.updateTask(taskItem);
+
+            }
+        });
+        editTextFile.setText(taskItem.getFileName());
     }
 
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -189,8 +235,28 @@ public class TaskDetailsActivity extends AppCompatActivity {
                     if(result.getResultCode() == Activity.RESULT_OK){
                         Intent data = result.getData();
                         uri = data.getData();
-                        getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        editTextFile.setText(getFileName(uri));
+                        if(uri != null)
+                        {
+                            getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            String fileName = getFileName(uri);
+                            try {
+                                InputStream inputStream = getContentResolver().openInputStream(uri);
+                                File file = new File(getFilesDir().getAbsolutePath()+"/"+fileName);
+                                file.createNewFile();
+                                OutputStream outputStream = new FileOutputStream(file);
+                                byte[] buf = new byte[1024];
+                                int length;
+                                while((length = inputStream.read(buf)) > 0){
+                                    outputStream.write(buf, 0, length);
+                                }
+                                taskItem.setFileName(fileName);
+                                toDoListDB.updateTask(taskItem);
+                                deleteFileButtonHandle();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            editTextFile.setText(fileName);
+                        }
                     }
                 }
             });
@@ -216,6 +282,15 @@ public class TaskDetailsActivity extends AppCompatActivity {
         }
         else {
             deleteCategoryButton.setVisibility(View.VISIBLE);
+        }
+    }
+    void deleteFileButtonHandle()
+    {
+        if(taskItem.getFileName().equals("")) {
+            deleteFileButton.setVisibility(View.INVISIBLE);
+        }
+        else {
+            deleteFileButton.setVisibility(View.VISIBLE);
         }
     }
 
