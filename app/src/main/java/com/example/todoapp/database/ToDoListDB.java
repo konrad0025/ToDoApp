@@ -66,7 +66,6 @@ public class ToDoListDB extends SQLiteOpenHelper {
         cv.put(FILE_NAME,taskItem.getFileName());
         cv.put(NOTIFICATION_DATE,taskItem.getNotificationDate());
         cv.put(NOTIFICATION_TIME,taskItem.getNotificationTime());
-        Log.d("check",taskItem.getIsHidden());
         if(taskItem.getKey_id()!=-1)
         {
             cv.put(KEY_ID,taskItem.getKey_id());
@@ -129,7 +128,6 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final int notificationDateID = cursor.getColumnIndex(NOTIFICATION_DATE);
         final int notificationTimeID = cursor.getColumnIndex(NOTIFICATION_TIME);
 
-        Log.d("check",isHiddenID+"");
         final ArrayList<TaskItem> taskList = new ArrayList<>();
 
         if(!cursor.moveToFirst())

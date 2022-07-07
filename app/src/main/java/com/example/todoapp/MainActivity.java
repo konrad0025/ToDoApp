@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this, listener);
-
+        filterList("");
         recyclerView.setAdapter(taskRecycleViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
