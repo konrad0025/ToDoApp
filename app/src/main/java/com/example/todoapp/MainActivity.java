@@ -69,14 +69,6 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this, listener);
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("IS_OPEN",Context.MODE_PRIVATE);
-        String titleToOpen = sharedPref.getString("title","");
-        Log.d("test",titleToOpen);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("title","");
-        editor.commit();
-        filterList(titleToOpen);
-
 
         recyclerView.setAdapter(taskRecycleViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -90,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         });
 
         editTextFilter = findViewById(R.id.filterEditText);
-        editTextFilter.setText(titleToOpen);
         editTextFilter.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -355,4 +346,6 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
             }
         }
     }
+
+
 }
