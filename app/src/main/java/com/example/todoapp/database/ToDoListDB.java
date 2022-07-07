@@ -15,7 +15,7 @@ import java.util.Collections;
 public class ToDoListDB extends SQLiteOpenHelper {
 
     private static int DB_VERSION = 1;
-    private static String DATABASE_NAME = "ToDoListDBv5";
+    private static String DATABASE_NAME = "ToDoListDBv6";
     private static String TABLE_NAME = "TaskItems";
     public static String KEY_ID = "id";
     public static String TITLE = "title";
@@ -23,9 +23,11 @@ public class ToDoListDB extends SQLiteOpenHelper {
     public static String CREATE_DATE = "createDate";
     public static String FINISH_DATE = "finishDate";
     public static String DEAD_LINE_DATE = "deadLineDate";
+    public static String NOTIFICATION_DATE = "notificationDate";
     public static String CREATE_TIME = "createTime";
     public static String FINISH_TIME = "finishTime";
     public static String DEAD_LINE_TIME = "deadLineTime";
+    public static String NOTIFICATION_TIME = "notificationTime";
     public static String IS_HIDDEN = "isHidden";
     public static String CATEGORY = "category";
     public static String FILE_NAME = "fileName";
@@ -38,7 +40,7 @@ public class ToDoListDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE " + TABLE_NAME + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + TITLE + " TEXT," + DESCRIPTION + " TEXT," + CREATE_DATE + " TEXT," + CREATE_TIME + " TEXT," + FINISH_DATE + " TEXT,"  + FINISH_TIME + " TEXT," + DEAD_LINE_DATE  + " TEXT," + DEAD_LINE_TIME + " TEXT," + CATEGORY + " TEXT," + FILE_NAME + " TEXT," + IS_HIDDEN + " TEXT)");
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + TITLE + " TEXT," + DESCRIPTION + " TEXT," + CREATE_DATE + " TEXT," + CREATE_TIME + " TEXT," + FINISH_DATE + " TEXT,"  + FINISH_TIME + " TEXT," + DEAD_LINE_DATE  + " TEXT," + DEAD_LINE_TIME +  " TEXT," + NOTIFICATION_DATE +  " TEXT," + NOTIFICATION_TIME +  " TEXT," + CATEGORY + " TEXT," + FILE_NAME + " TEXT," + IS_HIDDEN + " TEXT)");
     }
 
     @Override
@@ -62,6 +64,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
         cv.put(IS_HIDDEN,taskItem.getIsHidden());
         cv.put(CATEGORY,taskItem.getCategory());
         cv.put(FILE_NAME,taskItem.getFileName());
+        cv.put(NOTIFICATION_DATE,taskItem.getNotificationDate());
+        cv.put(NOTIFICATION_TIME,taskItem.getNotificationTime());
         Log.d("check",taskItem.getIsHidden());
         if(taskItem.getKey_id()!=-1)
         {
@@ -122,6 +126,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final int isHiddenID = cursor.getColumnIndex(IS_HIDDEN);
         final int categoryID = cursor.getColumnIndex(CATEGORY);
         final int fileNameID = cursor.getColumnIndex(FILE_NAME);
+        final int notificationDateID = cursor.getColumnIndex(NOTIFICATION_DATE);
+        final int notificationTimeID = cursor.getColumnIndex(NOTIFICATION_TIME);
 
         Log.d("check",isHiddenID+"");
         final ArrayList<TaskItem> taskList = new ArrayList<>();
@@ -144,6 +150,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
             final String isHiddenIDValue = cursor.getString(isHiddenID);
             final String categoryIDValue = cursor.getString(categoryID);
             final String fileNameIDValue = cursor.getString(fileNameID);
+            final String notificationDateIDValue = cursor.getString(notificationDateID);
+            final String notificationTimeIDValue = cursor.getString(notificationTimeID);
 
             taskList.add(new TaskItem(keyIdIDValue,
                     titleIDValue,
@@ -156,7 +164,9 @@ public class ToDoListDB extends SQLiteOpenHelper {
                     deadLineTimeIDValue,
                     isHiddenIDValue,
                     categoryIDValue,
-                    fileNameIDValue));
+                    fileNameIDValue,
+                    notificationDateIDValue,
+                    notificationTimeIDValue));
 
         }while(cursor.moveToNext());
         return taskList;
@@ -178,6 +188,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final int isHiddenID = cursor.getColumnIndex(IS_HIDDEN);
         final int categoryID = cursor.getColumnIndex(CATEGORY);
         final int fileNameID = cursor.getColumnIndex(FILE_NAME);
+        final int notificationDateID = cursor.getColumnIndex(NOTIFICATION_DATE);
+        final int notificationTimeID = cursor.getColumnIndex(NOTIFICATION_TIME);
 
         final TaskItem taskItem = new TaskItem();
 
@@ -198,6 +210,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
         final String isHiddenIDValue = cursor.getString(isHiddenID);
         final String categoryIDValue = cursor.getString(categoryID);
         final String fileNameIDValue = cursor.getString(fileNameID);
+        final String notificationDateIDValue = cursor.getString(notificationDateID);
+        final String notificationTimeIDValue = cursor.getString(notificationTimeID);
 
         taskItem.setFinishDate(finishDateIDValue);
         taskItem.setKey_id(keyIdIDValue);
@@ -211,6 +225,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
         taskItem.setIsHidden(isHiddenIDValue);
         taskItem.setCategory(categoryIDValue);
         taskItem.setFileName(fileNameIDValue);
+        taskItem.setNotificationDate(notificationDateIDValue);
+        taskItem.setNotificationTime(notificationTimeIDValue);
         return taskItem;
 
     }
@@ -231,6 +247,8 @@ public class ToDoListDB extends SQLiteOpenHelper {
         cv.put(IS_HIDDEN,taskItem.getIsHidden());
         cv.put(CATEGORY,taskItem.getCategory());
         cv.put(FILE_NAME,taskItem.getFileName());
+        cv.put(NOTIFICATION_DATE,taskItem.getNotificationDate());
+        cv.put(NOTIFICATION_TIME,taskItem.getNotificationTime());
         db.update(TABLE_NAME, cv, "id = ?", new String[]{taskItem.getKey_id()+""});
     }
 

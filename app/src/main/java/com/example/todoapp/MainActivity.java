@@ -10,11 +10,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,7 +69,15 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         taskRecycleViewAdapter = new TaskRecycleViewAdapter(taskItems, this, listener);
-        filterList("");
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("IS_OPEN",Context.MODE_PRIVATE);
+        String titleToOpen = sharedPref.getString("title","");
+        Log.d("test",titleToOpen);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("title","");
+        editor.commit();
+        filterList(titleToOpen);
+
+
         recyclerView.setAdapter(taskRecycleViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -79,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         });
 
         editTextFilter = findViewById(R.id.filterEditText);
+        editTextFilter.setText(titleToOpen);
         editTextFilter.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -195,11 +207,18 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
 
     @Override
     public void applyTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
-        addNewTask(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
+        if(taskTitle.equals("") || taskDeadLineDate.equals("") || taskDeadLineTime.equals(""))
+        {
+            Toast.makeText(getApplicationContext(),"Every filed except description have to be filled",Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            addNewTask(taskTitle, taskDescription, taskDeadLineDate, taskDeadLineTime);
+        }
     }
 
     private void addNewTask(String taskTitle, String taskDescription, String taskDeadLineDate, String taskDeadLineTime) {
-        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false", "", "");
+        TaskItem newItem = new TaskItem(-1, taskTitle, taskDescription, LocalDate.now().toString(), (LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()), "", "", taskDeadLineDate, taskDeadLineTime, "false", "", "", "", "");
         taskItems.add(newItem);
         int id = toDoListDB.insertIntoTheDatabase(newItem);
         newItem.setKey_id(id);
@@ -248,39 +267,37 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             int position = viewHolder.getAdapterPosition();
-            switch (direction)
-            {
-                case ItemTouchHelper.LEFT:
-                    toDoListDB.removeFromTheDatabase(taskRecycleViewAdapter.getTaskItems().get(position).getKey_id());
-                    deletedTaskItem = taskRecycleViewAdapter.getTaskItems().get(position);
-                    taskRecycleViewAdapter.getTaskItems().remove(position);
-                    taskRecycleViewAdapter.notifyItemRemoved(position);
-                    taskItems.remove(taskItems.indexOf(deletedTaskItem));
+                switch (direction){
 
-                    taskItems = toDoListDB.getTaskList();
-                    Snackbar.make(findViewById(R.id.recyclerView),deletedTaskItem.getTitle(),Snackbar.LENGTH_SHORT).setAction("Undo", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            toDoListDB.insertIntoTheDatabase(deletedTaskItem);
-                            taskItems = toDoListDB.getTaskList();
-                            filterList(editTextFilter.getText().toString());
-                        }
-                    }).show();
-                    return;
-                case ItemTouchHelper.RIGHT:
-                    if(taskRecycleViewAdapter.getTaskItems().get(position).getIsHidden().equals("true"))
-                    {
-                        taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("false");
-                        toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
-                        filterList(editTextFilter.getText().toString());
-                    }
-                    else
-                    {
-                        taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("true");
-                        toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
-                        filterList(editTextFilter.getText().toString());
+                       case ItemTouchHelper.LEFT:
+                           toDoListDB.removeFromTheDatabase(taskRecycleViewAdapter.getTaskItems().get(position).getKey_id());
+                           deletedTaskItem = taskRecycleViewAdapter.getTaskItems().get(position);
+                           taskRecycleViewAdapter.getTaskItems().remove(position);
+                           taskRecycleViewAdapter.notifyItemRemoved(position);
+                           taskItems.remove(taskItems.indexOf(deletedTaskItem));
 
-                    }
+                           taskItems = toDoListDB.getTaskList();
+                           filterList(editTextFilter.getText().toString());
+                           Snackbar.make(findViewById(R.id.recyclerView), deletedTaskItem.getTitle(), Snackbar.LENGTH_SHORT).setAction("Undo", new View.OnClickListener() {
+                               @Override
+                               public void onClick(View view) {
+                                   toDoListDB.insertIntoTheDatabase(deletedTaskItem);
+                                   taskItems = toDoListDB.getTaskList();
+                                   filterList(editTextFilter.getText().toString());
+                               }
+                           }).show();
+                           return;
+                       case ItemTouchHelper.RIGHT:
+                           if (taskRecycleViewAdapter.getTaskItems().get(position).getIsHidden().equals("true")) {
+                               taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("false");
+                               toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
+                               filterList(editTextFilter.getText().toString());
+                           } else {
+                               taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("true");
+                               toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
+                               filterList(editTextFilter.getText().toString());
+
+                           }
             }
         }
     };

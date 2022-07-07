@@ -14,6 +14,8 @@ public class TaskItem implements Parcelable {
     private String createTime;
     private String finishTime;
     private String deadLineTime;
+    private String notificationDate;
+    private String notificationTime;
     private String isHidden;
     private String category;
     private String fileName;
@@ -21,7 +23,7 @@ public class TaskItem implements Parcelable {
     public TaskItem() {
     }
 
-    public TaskItem(int key_id, String title, String description, String createDate, String createTime, String finishDate, String finishTime, String deadLineDate, String deadLineTime, String isHidden, String category, String fileName) {
+    public TaskItem(int key_id, String title, String description, String createDate, String createTime, String finishDate, String finishTime, String deadLineDate, String deadLineTime, String isHidden, String category, String fileName, String notificationDate, String notificationTime) {
         this.key_id = key_id;
         this.title = title;
         this.description = description;
@@ -34,6 +36,8 @@ public class TaskItem implements Parcelable {
         this.isHidden = isHidden;
         this.category = category;
         this.fileName = fileName;
+        this.notificationDate = notificationDate;
+        this.notificationTime = notificationTime;
     }
 
     protected TaskItem(Parcel in) {
@@ -46,6 +50,8 @@ public class TaskItem implements Parcelable {
         createTime = in.readString();
         finishTime = in.readString();
         deadLineTime = in.readString();
+        notificationDate = in.readString();
+        notificationTime = in.readString();
         isHidden = in.readString();
         category = in.readString();
         fileName = in.readString();
@@ -135,6 +141,14 @@ public class TaskItem implements Parcelable {
 
     public void setFileName(String fileName) { this.fileName = fileName; }
 
+    public String getNotificationDate() { return notificationDate; }
+
+    public void setNotificationDate(String notificationDate) { this.notificationDate = notificationDate; }
+
+    public String getNotificationTime() { return notificationTime; }
+
+    public void setNotificationTime(String notificationTime) { this.notificationTime = notificationTime; }
+
     @Override
     public int describeContents() {
         return 0;
@@ -151,6 +165,8 @@ public class TaskItem implements Parcelable {
         parcel.writeString(createTime);
         parcel.writeString(finishTime);
         parcel.writeString(deadLineTime);
+        parcel.writeString(notificationDate);
+        parcel.writeString(notificationTime);
         parcel.writeString(isHidden);
         parcel.writeString(category);
         parcel.writeString(fileName);

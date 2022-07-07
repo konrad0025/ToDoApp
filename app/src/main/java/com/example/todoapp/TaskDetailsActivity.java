@@ -9,22 +9,23 @@ import androidx.core.content.FileProvider;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,32 +33,34 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.todoapp.database.ToDoListDB;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class TaskDetailsActivity extends AppCompatActivity {
 
     EditText editTextTitle,editTextDeadLineDate,editTextCreateDate,editTextFinishDateDate,editTextDescription,editTextFile,editTextNotification;
-    Button doneButton,deleteCategoryButton,deleteFileButton;
+    Button doneButton,deleteCategoryButton,deleteFileButton,deleteNotificationButton;
     TaskItem taskItem;
     private ToDoListDB toDoListDB = new ToDoListDB(this);
     AutoCompleteTextView autoCompleteTextView;
     ArrayAdapter<String> adapterItems;
     ArrayList<String> categoryList;
     Uri uri;
+    AlarmManager alarmManager;
+    PendingIntent pendingIntent;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -80,9 +83,11 @@ public class TaskDetailsActivity extends AppCompatActivity {
         doneButton = findViewById(R.id.doneButton);
         deleteCategoryButton = findViewById(R.id.deleteCategoryButton);
         deleteFileButton = findViewById(R.id.deleteFileButton);
+        deleteNotificationButton = findViewById(R.id.deleteNotificationButton);
         taskDoneButtonHandle();
         deleteCategoryButtonHandle();
         deleteFileButtonHandle();
+        deleteNotificationButtonHandle();
         editTextTitle.setText(taskItem.getTitle());
         editTextTitle.addTextChangedListener(new TextWatcher() {
             @Override
@@ -109,11 +114,11 @@ public class TaskDetailsActivity extends AppCompatActivity {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(TaskDetailsActivity.this, android.R.style.Theme_DeviceDefault_Dialog, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        taskItem.setDeadLineDate(year + "-" + (month+1<10 ? "0"+(month+1) : (month+1)) + "-" + (day<10 ? "0"+day : day));
                         LocalTime deadLineTime = LocalTime.parse(taskItem.getDeadLineTime());
                         TimePickerDialog timePickerDialog = new TimePickerDialog(TaskDetailsActivity.this, android.R.style.Theme_DeviceDefault_Dialog, new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hour, int min) {
+                                taskItem.setDeadLineDate(year + "-" + (month+1<10 ? "0"+(month+1) : (month+1)) + "-" + (day<10 ? "0"+day : day));
                                 taskItem.setDeadLineTime((hour<10 ? "0"+(hour) : hour)+":"+(min<10 ? "0"+(min) : min));
                                 editTextDeadLineDate.setText(taskItem.getDeadLineDate()+" "+taskItem.getDeadLineTime());
                                 toDoListDB.updateTask(taskItem);
@@ -225,6 +230,97 @@ public class TaskDetailsActivity extends AppCompatActivity {
             }
         });
         editTextFile.setText(taskItem.getFileName());
+
+        createNotificationChannel();
+        editTextNotification.setText(taskItem.getNotificationDate().equals("") ? "" : taskItem.getNotificationDate()+" "+taskItem.getNotificationTime());
+        editTextNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(taskItem.getNotificationDate().equals(""))
+                {
+                    LocalDate notificationDate = LocalDate.now();
+                    if(!taskItem.getNotificationDate().equals(""))
+                    {
+                        notificationDate = LocalDate.parse(taskItem.getNotificationDate());
+                    }
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(TaskDetailsActivity.this, android.R.style.Theme_DeviceDefault_Dialog, new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                            LocalTime notificationTime = LocalTime.parse((LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()));
+                            if(!taskItem.getNotificationTime().equals(""))
+                            {
+                                notificationTime = LocalTime.parse(taskItem.getNotificationTime());
+                            }
+
+                            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskDetailsActivity.this, android.R.style.Theme_DeviceDefault_Dialog, new TimePickerDialog.OnTimeSetListener() {
+                                @Override
+                                public void onTimeSet(TimePicker timePicker, int hour, int min) {
+                                    taskItem.setNotificationDate(year + "-" + (month+1<10 ? "0"+(month+1) : (month+1)) + "-" + (day<10 ? "0"+day : day));
+
+                                    taskItem.setNotificationTime((hour<10 ? "0"+(hour) : hour)+":"+(min<10 ? "0"+(min) : min));
+
+                                    if(LocalDate.parse(taskItem.getNotificationDate()).compareTo(LocalDate.now()) < 0)
+                                    {
+                                        Toast.makeText(getApplicationContext(),"Can't select earlier date than now",Toast.LENGTH_SHORT).show();
+                                        taskItem.setNotificationDate("");
+                                        taskItem.setNotificationTime("");
+                                    }
+                                    else
+                                    {
+                                        if(LocalTime.parse(taskItem.getNotificationTime()).compareTo(LocalTime.now()) < 0 && LocalDate.parse(taskItem.getNotificationDate()).compareTo(LocalDate.now()) == 0)
+                                        {
+                                            Toast.makeText(getApplicationContext(),"Can't select earlier date than now",Toast.LENGTH_SHORT).show();
+                                            taskItem.setNotificationDate("");
+                                            taskItem.setNotificationTime("");
+                                        }
+                                        else
+                                        {
+                                            editTextNotification.setText(taskItem.getNotificationDate()+" "+taskItem.getNotificationTime());
+                                            toDoListDB.updateTask(taskItem);
+                                            alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                                            Intent intent = new Intent(TaskDetailsActivity.this,AlarmReceiver.class);
+                                            intent.putExtra("notification", taskItem.getKey_id());
+                                            pendingIntent = PendingIntent.getBroadcast(TaskDetailsActivity.this, taskItem.getKey_id(),intent,PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                                            alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis() + neededTimeToNotification(),pendingIntent);
+                                            deleteNotificationButtonHandle();
+                                        }
+                                    }
+                                }
+                            }, notificationTime.getHour(),notificationTime.getMinute(),true);
+                            timePickerDialog.show();
+
+                        }
+                    }, notificationDate.getYear(), notificationDate.getMonthValue()-1, notificationDate.getDayOfMonth());
+                    datePickerDialog.show();
+                }
+            }
+        });
+        deleteNotificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskItem.setNotificationTime("");
+                taskItem.setNotificationDate("");
+                editTextNotification.setText("");
+                deleteNotificationButtonHandle();
+                toDoListDB.updateTask(taskItem);
+
+                Intent intent = new Intent(TaskDetailsActivity.this,AlarmReceiver.class);
+                pendingIntent = PendingIntent.getBroadcast(TaskDetailsActivity.this, taskItem.getKey_id(),intent,PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+                if(alarmManager == null)
+                {
+                    alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                }
+                alarmManager.cancel(pendingIntent);
+            }
+        });
+    }
+
+    private long neededTimeToNotification() {
+        LocalDate localDate = LocalDate.parse(taskItem.getNotificationDate());
+        LocalDateTime localDateTime = localDate.atTime(LocalTime.parse(taskItem.getNotificationTime()));
+        long diff = ChronoUnit.MILLIS.between(LocalDateTime.now(), localDateTime);
+        return (int)diff;
     }
 
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -293,6 +389,15 @@ public class TaskDetailsActivity extends AppCompatActivity {
             deleteFileButton.setVisibility(View.VISIBLE);
         }
     }
+    void deleteNotificationButtonHandle()
+    {
+        if(taskItem.getNotificationDate().equals("")) {
+            deleteNotificationButton.setVisibility(View.INVISIBLE);
+        }
+        else {
+            deleteNotificationButton.setVisibility(View.VISIBLE);
+        }
+    }
 
     //https://stackoverflow.com/questions/5568874/how-to-extract-the-file-name-from-uri-returned-from-intent-action-get-content
     @SuppressLint("Range")
@@ -316,5 +421,20 @@ public class TaskDetailsActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+    private void createNotificationChannel()
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            CharSequence name = "channel  Name";
+            String description = "channel   Description";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("foxandroid",name,importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

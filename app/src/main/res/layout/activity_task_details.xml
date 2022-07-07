@@ -56,7 +56,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView">
@@ -71,6 +72,7 @@
         android:layout_marginRight="7dp"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
+        android:layout_gravity="top|center"
         >
 
         <com.google.android.material.card.MaterialCardView
@@ -211,12 +213,12 @@
 
                     app:layout_constraintBottom_toBottomOf="parent"
 
-                    app:layout_constraintEnd_toStartOf="@+id/notificationFileButton"
+                    app:layout_constraintEnd_toStartOf="@+id/deleteNotificationButton"
                     app:layout_constraintStart_toEndOf="@+id/notificationImageView"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/notificationFileButton"
+                    android:id="@+id/deleteNotificationButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_gravity="top|end"
