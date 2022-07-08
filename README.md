@@ -17,7 +17,7 @@ In the main menu of the application we have a list with tasks, a button for addi
 
 </p>
 
-the tasks in the main menu are swipeable <br>
+Tasks in the main menu are swipeable <br>
 - right swipe hides / unhides tasks <br>
 - left swipe removes the job <br>
 
