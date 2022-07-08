@@ -6,9 +6,7 @@ My version of a to do list application that had to be created for school activit
 -targetSdkVersion 31
 
 
-###Main page
-
-<br>
+### Main page
 In the main menu of the application we have a list with tasks, a button for adding new tasks and filtering above the list. In the upper right corner there is a menu with options such as showing / hiding hidden tasks, adding and sorting by categories and sorting by deadline
 <br>
 <p float="left">
@@ -31,7 +29,7 @@ the tasks in the main menu are swipeable <br>
 
 </p>
 
-###Details page
+### Details page
 <br>
 After clicking on a task, we go to the preview of the given task. In the preview, we can edit our task, add a notification, attach a file and add a note
 <br>
