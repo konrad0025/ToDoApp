@@ -19,7 +19,7 @@ In the main menu of the application we have a list with tasks, a button for addi
 
 Tasks in the main menu are swipeable <br>
 - right swipe hides / unhides tasks <br>
-- left swipe removes the job <br>
+- left swipe removes the task <br>
 
 <p float="left">
 <img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Swipe_left.jpg" width="49%" height="49%" />
