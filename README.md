@@ -30,7 +30,6 @@ the tasks in the main menu are swipeable <br>
 </p>
 
 ### Details page
-<br>
 After clicking on a task, we go to the preview of the given task. In the preview, we can edit our task, add a notification, attach a file and add a note
 <br>
 <p float="left">
