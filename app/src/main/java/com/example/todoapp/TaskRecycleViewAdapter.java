@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.todoapp.database.ToDoListDB;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 
@@ -117,6 +118,7 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
 
                     if(taskItem.getFinishDate().equals("")) {
                         taskItem.setFinishDate(LocalDate.now().toString());
+                        taskItem.setFinishTime((LocalTime.now().getHour()<10 ? "0"+(LocalTime.now().getHour()) : LocalTime.now().getHour())+":"+(LocalTime.now().getMinute()<10 ? "0"+(LocalTime.now().getMinute()) : LocalTime.now().getMinute()));
                         textViewTitle.setPaintFlags(textViewTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                         textViewTitle.setTextColor(Color.parseColor("#676767"));
                         doneButton.setBackgroundResource(R.drawable.ic_baseline_check_circle_24);
