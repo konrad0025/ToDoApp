@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -266,7 +268,22 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                            taskRecycleViewAdapter.getTaskItems().remove(position);
                            taskRecycleViewAdapter.notifyItemRemoved(position);
                            taskItems.remove(taskItems.indexOf(deletedTaskItem));
+                           if(!deletedTaskItem.getNotificationDate().equals(""))
+                           {
+                               Intent intent = new Intent(MainActivity.this,AlarmReceiver.class);
+                               PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, deletedTaskItem.getKey_id(),intent,PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+                               AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+                               alarmManager.cancel(pendingIntent);
+                               deletedTaskItem.setNotificationTime("");
+                               deletedTaskItem.setNotificationDate("");
+                           }
+                           if(!deletedTaskItem.getFileName().equals(""))
+                           {
+                               deleteFile(deletedTaskItem.getFileName());
+                               deletedTaskItem.setFileName("");
+                           }
                            taskItems = toDoListDB.getTaskList();
                            filterList(editTextFilter.getText().toString());
                            Snackbar.make(findViewById(R.id.recyclerView), deletedTaskItem.getTitle(), Snackbar.LENGTH_SHORT).setAction("Undo", new View.OnClickListener() {
@@ -281,15 +298,13 @@ public class MainActivity extends AppCompatActivity implements AddNewTaskDialog.
                        case ItemTouchHelper.RIGHT:
                            if (taskRecycleViewAdapter.getTaskItems().get(position).getIsHidden().equals("true")) {
                                taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("false");
-                               toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
-                               filterList(editTextFilter.getText().toString());
                            } else {
                                taskItems.get(taskItems.indexOf(taskRecycleViewAdapter.getTaskItems().get(position))).setIsHidden("true");
-                               toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
-                               filterList(editTextFilter.getText().toString());
 
                            }
-            }
+                           toDoListDB.updateTask(taskRecycleViewAdapter.getTaskItems().get(position));
+                           filterList(editTextFilter.getText().toString());
+                }
         }
     };
 
