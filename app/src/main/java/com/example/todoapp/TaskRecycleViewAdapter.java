@@ -82,6 +82,22 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
         {
             holder.cardView.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
         }
+        if(taskItem.getFileName().equals(""))
+        {
+            holder.imageViewFile.setVisibility(View.INVISIBLE);
+        }
+        else
+        {
+            holder.imageViewFile.setVisibility(View.VISIBLE);
+        }
+        if(taskItem.getNotificationDate().equals(""))
+        {
+            holder.imageViewNotification.setVisibility(View.INVISIBLE);
+        }
+        else
+        {
+            holder.imageViewNotification.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -99,7 +115,7 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
 
         TextView textViewTitle,textViewDeadLineDate;
         Button doneButton;
-        ImageView imageViewDeadLineDate;
+        ImageView imageViewDeadLineDate, imageViewNotification, imageViewFile;
         CardView cardView;
 
         public ViewHolder(@NonNull View itemView) {
@@ -108,6 +124,8 @@ public class TaskRecycleViewAdapter extends RecyclerView.Adapter<TaskRecycleView
             textViewTitle = itemView.findViewById(R.id.titleTextView);
             textViewDeadLineDate = itemView.findViewById(R.id.deadLineTextView);
             doneButton = itemView.findViewById(R.id.doneButton);
+            imageViewFile = itemView.findViewById(R.id.fileImageView);
+            imageViewNotification = itemView.findViewById(R.id.notificationImageView);
             imageViewDeadLineDate = itemView.findViewById(R.id.deadLineImageView);
             itemView.setOnClickListener(this);
             doneButton.setOnClickListener(new View.OnClickListener() {

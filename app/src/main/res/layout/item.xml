@@ -64,5 +64,22 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+    <ImageView
+        android:id="@+id/fileImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:background="@drawable/ic_baseline_attach_file_24"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:visibility="invisible"/>
+    <ImageView
+        android:id="@+id/notificationImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:background="@drawable/ic_baseline_notifications_24"
+        android:layout_marginBottom="18dp"
+        android:layout_marginEnd="18dp"
+        android:visibility="invisible"/>
 </androidx.cardview.widget.CardView>
