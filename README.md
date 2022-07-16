@@ -10,7 +10,7 @@ My version of a to do list application that had to be created for school activit
 In the main menu of the application we have a list with tasks, a button for adding new tasks and filtering above the list. In the upper right corner there is a menu with options such as showing / hiding hidden tasks, adding and sorting by categories and sorting by deadline
 <br>
 <p float="left">
-<img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Main_page.jpg" width="49%" height="49%" />
+<img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Main_pagev2.jpg" width="49%" height="49%" />
 
 
 <img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Main_page_options.jpg" width="49%" height="49%" />
@@ -25,7 +25,7 @@ Tasks in the main menu are swipeable <br>
 <img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Swipe_left.jpg" width="49%" height="49%" />
 
 
-<img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Swipe_right.jpg" width="49%" height="49%" />
+<img src="https://github.com/konrad0025/ToDoApp/blob/master/photosToReadme/Swipe_rightv2.jpg" width="49%" height="49%" />
 
 </p>
 
